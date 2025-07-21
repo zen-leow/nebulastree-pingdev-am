@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Copyright 2019-2025 Ping Identity Corporation. All Rights Reserved
+
+ ! This code is to be used exclusively in connection with Ping Identity
+ ! Corporation software or services. Ping Identity Corporation only offers
+ ! such software or services to legal entities who have entered into a
+ ! binding license agreement with Ping Identity Corporation.
+-->
+<Server port="8005" shutdown="SHUTDOWN">
+    <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+    <!-- Security listener. Documentation at /docs/config/listeners.html
+    <Listener className="org.apache.catalina.security.SecurityListener" />
+    -->
+    <!--APR library loader. Documentation at /docs/apr.html -->
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+    <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+    <!-- Global JNDI resources
+         Documentation at /docs/jndi-resources-howto.html
+    -->
+    <GlobalNamingResources>
+
+        <Resource name="UserDatabase" auth="Container"
+                  type="org.apache.catalina.UserDatabase"
+                  description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+                  pathname="conf/tomcat-users.xml" />
+    </GlobalNamingResources>
+
+    <Service name="Catalina">
+
+        <!--    scheme="https" secure="true" - means that we use external ssl termination
+        secure="true" proxyPort="443"                 scheme="https"
+    -->
+
+        <!-- See https://backstage.forgerock.com/docs/am/5.5/install-guide/#prepare-apache-tomcat
+
+         The URIEncoding should be set to UTF-8.
+
+         See also https://tomcat.apache.org/tomcat-8.0-doc/config/http.html.
+
+         Tomcat 8 should default this to UTF-8, but we set it just to be sure.
+
+         maxHttpHeaderSize="8192" - defaults to 8K which is sufficient for AM.
+         -->
+        <Connector port="8080" protocol="HTTP/1.1"
+                   maxThreads="1000"
+                   secure="false"
+                   SSLEnabled="false"
+                   connectionTimeout="20000"
+                   URIEncoding="UTF-8"
+                   redirectPort="8443" />
+        <Connector port="8081" protocol="HTTP/1.1"
+                   maxThreads="1000"
+                   scheme="https"
+                   secure="true"
+                   SSLEnabled="false"
+                   connectionTimeout="20000"
+                   URIEncoding="UTF-8"
+                   redirectPort="8443" />
+
+        <!--  
+      <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+                 maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
+                 keystoreFile="/usr/local/tomcat/ssl/keystore" keystorePass="password"
+                 clientAuth="false" sslProtocol="TLS" />
+        -->
+		<Connector
+			  port="8443"
+			  protocol="org.apache.coyote.http11.Http11NioProtocol"
+			  maxThreads="1000"
+			  minSpareThreads="25"
+			  SSLEnabled="true"
+			  scheme="https"
+			  secure="true"
+			  enableLookups="false"
+			  disableUploadTimeout="true"
+			  acceptCount="500"
+			  URIEncoding="UTF-8"
+			  clientAuth="false"
+			  connectionTimeout="20000">
+		  <!--<UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol"/>-->
+			<SSLHostConfig>
+				<Certificate
+				  certificateKeystoreFile="${javax.net.ssl.trustStore}"
+				  certificateKeystorePassword="${javax.net.ssl.trustStorePassword}"
+				  type="RSA" />
+			</SSLHostConfig>
+		</Connector>
+
+        <!-- Define an AJP 1.3 Connector on port 8009
+        <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+        -->
+
+        <Engine name="Catalina" defaultHost="localhost">
+
+            <Realm className="org.apache.catalina.realm.LockOutRealm">
+                <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+                       resourceName="UserDatabase"/>
+            </Realm>
+
+            <Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="true">
+                <!--
+
+                Default Access Log
+              <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                     prefix="localhost_access_log" suffix=".txt"
+                     pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+                     -->
+                <!-- We add %D - response time (msec) and send this to stdout. -->
+                <Valve className="org.apache.catalina.valves.AccessLogValve" directory="${tomcatAccessLogDir}"
+                       prefix="${tomcatAccessLogFile}" suffix="" rotatable="false"
+                       pattern="%h %l %u %t &quot;%r&quot; %s %b %Dms" />
+
+                <Valve className="org.apache.catalina.valves.ErrorReportValve"
+                       errorCode.400="webapps/am/error/4xx.html"
+                       errorCode.0="webapps/am/error/5xx.html"
+                       showReport="false"
+                       showServerInfo="false" />
+            </Host>
+        </Engine>
+    </Service>
+</Server>

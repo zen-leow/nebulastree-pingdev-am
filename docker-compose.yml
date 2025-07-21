@@ -1,0 +1,35 @@
+services:
+ ds-pingdev:
+   build: ds
+   image: local/pingdev-ds:8.0.0
+   container_name: ds.pingdev.local
+   environment:
+     - DS_SET_UID_ADMIN_AND_MONITOR_PASSWORDS=true
+     - DS_UID_ADMIN_PASSWORD=password
+     - DS_UID_MONITOR_PASSWORD=password
+   ports:
+     - 636:1636
+   volumes:
+     - pingdev-ds-data:/opt/opendj/data
+     - ./security/ds:/opt/opendj/secrets
+   command: start-ds
+ am:
+   build: 
+    context: am
+    args: 
+      AM_FILE_NAME: ${AM_FILE_NAME}
+   image: local/pingdev-am:8.0.1
+   container_name: am.pingdev.local
+   environment:
+     - AM_STORES_SERVERS=ds.pingdev.local:1636
+     - TRUSTSTORE_PATH=/var/run/secrets/am/truststore
+     - TRUSTSTORE_PASSWORD=bcGoNwg74en4nOgapWueGJq6s958botDhdmlLkLFsB2iMBeJBD1m+5tKzF+uXJ2dTDg=
+   ports:
+     - 8081:8080
+     - 8443:8443
+   volumes:
+     - ./security/am:/var/run/secrets
+     - pingdev-am-config:/home/forgerock/openam
+volumes:
+ pingdev-ds-data:
+ pingdev-am-config:

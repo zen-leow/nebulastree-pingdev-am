@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+DEFAULT_OPENDJ_JAVA_ARGS="
+-XX:+UseG1GC
+-XX:+ExitOnOutOfMemoryError
+-Djava.security.egd=file:/dev/urandom
+-Xlog:gc:${DS_JAVA_GC_LOGFILE:-/opt/opendj/data/gc.log}:time,uptime:filecount=5,filesize=50M
+-XX:MaxGCPauseMillis=${DS_JAVA_GC_PAUSE_TARGET:-200}
+-XX:MaxRAMPercentage=${DS_JAVA_MAX_RAM_PERCENTAGE:-75}
+-XX:MaxTenuringThreshold=${DS_JAVA_MAX_TENURING_THRESHOLD:-1}
+${DS_JAVA_ADDITIONAL_ARGS:-}
+"
+export OPENDJ_JAVA_ARGS=${OPENDJ_JAVA_ARGS:-${DEFAULT_OPENDJ_JAVA_ARGS}}
+
+echo "No new indexes to add"
+
+exit 0
+
+## Below is a sample of a user supplied add-index script int the configMap
+
+# This can be done offline...
+dsconfig --offline --no-prompt --batch <<EOF
+create-backend-index \
+          --backend-name amIdentityStore \
+          --set index-type:equality \
+          --index-name carLicense
+EOF
+
+rebuild-index  --offline \
+ --baseDN ou=identities \
+ --index carLicense
+
+# Sample commands that can be done online.
+
+dsconfig --hostname localhost --port 4444 \
+    --bindDN uid=admin --bindPassword:file $DS_UID_ADMIN_PASSWORD_FILE \
+    --trustAll  --no-prompt --batch <<EOF
+create-backend-index \
+          --backend-name amIdentityStore \
+          --set index-type:equality \
+          --index-name carLicense
+EOF
+
+
+rebuild-index --hostname localhost --port 4444 \
+    --bindDN uid=admin ---bindPassword:file $DS_UID_ADMIN_PASSWORD_FILE \
+    --trustAll   \
+    --baseDN ou=identities \
+    --index carLicense

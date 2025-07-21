@@ -1,0 +1,16 @@
+
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = pingdev
+DNS.2 = pingdev.local
+DNS.3 = *.pingdev.local
+DNS.4 = am
+DNS.5 = am.local
+DNS.6 = idrepo
+DNS.7 = idrepo.local
+DNS.8 = cts
+DNS.9 = cts.local

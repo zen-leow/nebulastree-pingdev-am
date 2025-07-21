@@ -1,0 +1,181 @@
+Generate self-signed CA key
+===========================
+
+openssl genrsa -des3 -out pingdev-CA.key 2048
+
+Enter PEM pass phrase: password
+
+Verifying - Enter PEM pass phrase: password
+
+
+Generate self-signed CA cert
+============================
+
+openssl req -x509 -new -nodes -key pingdev-CA.key -sha256 -days 7650 -out pingdev-CA.crt
+
+Enter pass phrase for pingdev-CA.key: password
+
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:SG
+State or Province Name (full name) [Some-State]:Singapore
+Locality Name (eg, city) []:Singapore
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Nebulas Tree Pte. Ltd.
+Organizational Unit Name (eg, section) []:IT
+Common Name (e.g. server FQDN or YOUR name) []:pingdev-CA
+Email Address []:
+
+
+Create Config File
+==================
+
+Create "pingdev.cnf" file with the following contents.
+
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+[ req_distinguished_name ]
+countryName 				= Country Name
+stateOrProvinceName			= State or Province Name
+localityName				= Locality Name
+organizationName			= Organization Name
+commonName					= Common Name
+countryName_default			= SG
+stateOrProvinceName_default	= Singapore
+localityName_default		= Singapore
+organizationName_default	= Nebulas Tree Pte. Ltd.
+commonName_default          = pingdev
+
+[ req_ext ]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = pingdev
+DNS.2 = pingdev.local
+DNS.3 = *.pingdev.local
+DNS.4 = am
+DNS.5 = am.local
+DNS.6 = idrepo
+DNS.7 = idrepo.local
+DNS.8 = cts
+DNS.9 = cts.local
+
+
+Generate Server Key and CSR
+===========================
+
+openssl req -new -out pingdev.csr -newkey rsa:2048 -nodes -sha256 -keyout pingdev.key.temp -config pingdev.cnf
+
+..+......+...+.........+.+...........+.+...+.....+++++++++++++++++++++++++++++++++++++++*....+...+..+...+....+........+.+..+.............+..+...+......+.+...+..............+.+......+......+.........+.........+..+++++++++++++++++++++++++++++++++++++++*................+..............+...+...+.+...+...+........+....+..+....+..+....+.....+....+.........+...........+....+.....+.+......+........+...+..........+..+...+.......+.................+...+.+.........+...............+...............+...........+...................+...+...............+...+..+.........+.+..+.......+.....+...+.............+...+......+...+.....+.......+.....+.........+....+...+..+...+.......+...+.....+...+............+....+...........+...+..........+.....+.+.....+...+.............+..+.+...........+.+..+...+..........+...............+..............+....+............+..+............+.+..+......+.+......+.........+...+...........+.+...+..+...............+......+.............+......+........+...++++++
+..+.....+....+.....+....+..+.+.....+...+.......+...+.....+....+.....+.+..+....+...+..+......+...+.......+..+............+...+.+......+.....+.+..+.+.....+.+.....+...+...+.......+..+.+...+.....+.........+.+...........+....+.....+....+...+..+...+....+...+...+..............+......+++++++++++++++++++++++++++++++++++++++*..+.+......+....................+.............+..+....+++++++++++++++++++++++++++++++++++++++*..+....+..............+.+...........+....+..+............+......+....+..+....+.....++++++
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name [SG]:
+State or Province Name [Singapore]:
+Locality Name [Singapore]:
+Organization Name [Nebulas Tree Pte. Ltd.]:
+Common Name [pingdev]:
+
+
+
+Verify your CSR
+===============
+openssl req -text -noout -verify -in pingdev.csr
+
+Certificate request self-signature verify OK
+Certificate Request:
+    Data:
+        Version: 1 (0x0)
+        Subject: C=SG, ST=Singapore, L=Singapore, O=Nebulas Tree Pte. Ltd., CN=pingdev
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:87:5d:a7:87:99:1a:0a:95:84:dd:4a:b9:da:75:
+                    55:e8:c6:4b:90:b3:48:04:c0:db:bb:1a:19:7b:98:
+                    ae:7d:2a:76:1a:04:12:3e:07:fd:98:79:2f:61:cb:
+                    22:6b:d7:bc:ab:07:04:e3:3f:11:e0:94:20:da:7d:
+                    cc:e7:97:b7:21:39:12:c7:7f:57:28:61:ae:a2:91:
+                    81:11:c4:23:29:d9:66:cb:e0:fc:3a:44:60:26:d3:
+                    b2:ce:bb:3d:77:8c:14:ba:52:84:ce:e8:5c:0d:69:
+                    70:c9:b0:71:85:fb:bd:6b:e1:29:dd:b3:f2:0d:f5:
+                    5e:d1:ba:ee:23:72:b8:7b:f7:e9:b3:64:be:a4:fa:
+                    25:9c:b5:59:03:fd:ee:4e:a3:2d:97:50:9a:06:26:
+                    a7:2e:67:2f:aa:3c:b3:93:b3:43:c5:9f:7d:e2:3e:
+                    4f:98:91:4d:26:da:46:e9:26:89:92:d6:dc:ac:92:
+                    91:99:00:35:bf:97:aa:7a:43:7d:dc:a3:4e:45:9d:
+                    cb:12:01:28:20:72:02:fc:0f:5e:ab:53:3b:c4:2c:
+                    3e:37:0f:61:cf:07:af:70:6b:53:32:a0:c8:98:71:
+                    96:d7:c3:e7:1b:e2:fc:93:26:93:97:43:d4:b0:9d:
+                    c2:00:8e:cf:39:ef:bd:d0:7c:6b:4a:a2:79:87:ef:
+                    eb:d1
+                Exponent: 65537 (0x10001)
+        Attributes:
+            Requested Extensions:
+                X509v3 Subject Alternative Name:
+                    DNS:pingdev, DNS:pingdev.local, DNS:*.pingdev.local, DNS:am, DNS:am.local, DNS:idrepo, DNS:idrepo.local, DNS:cts, DNS:cts.local
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        5a:12:14:23:11:41:41:27:cb:19:45:17:f5:eb:5c:07:3a:0f:
+        13:cf:dd:88:57:f5:c0:61:c6:3e:1c:f0:2f:ae:fd:03:ea:2b:
+        3a:27:98:de:ca:88:c2:e9:d1:2d:1f:eb:33:06:39:5d:18:e6:
+        69:05:c8:11:8c:09:13:a4:d4:04:1a:b3:57:61:b4:18:7e:aa:
+        1b:67:5d:d9:2e:4f:c9:d9:1f:09:7b:c6:70:01:a7:9d:10:5e:
+        be:e0:ad:d7:13:ea:b3:9b:72:50:f3:29:4e:29:46:28:8d:13:
+        1c:41:6c:cc:cb:df:01:3a:8e:06:05:36:2e:60:90:65:53:3f:
+        e4:2c:da:b7:33:3e:54:47:92:c6:67:a1:91:dc:a4:bc:b1:66:
+        e4:15:2e:5d:b5:4c:f7:87:5c:49:07:d5:42:ce:d1:c0:9e:9b:
+        0e:6d:0a:65:66:48:92:ba:13:b8:fc:b8:0e:90:24:61:24:e1:
+        2d:0d:0a:50:a6:5e:d5:45:5d:b3:84:2a:8c:b8:96:f2:bb:6a:
+        e7:75:8a:d8:bf:47:19:55:4e:8e:69:7b:29:26:8a:98:07:31:
+        91:fd:e1:84:28:39:83:21:33:a9:36:52:49:64:fa:1c:e2:8c:
+        9d:5d:d9:2f:9b:22:8b:9f:ad:f9:d8:35:b7:38:57:c0:97:1d:
+        63:4a:7a:b5
+
+
+Create the extension file for signing use
+=========================================
+Create a file "pingdev.ext" and add the following content.
+
+
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = pingdev
+DNS.2 = pingdev.local
+DNS.3 = *.pingdev.local
+DNS.4 = am
+DNS.5 = am.local
+DNS.6 = idrepo
+DNS.7 = idrepo.local
+DNS.8 = cts
+DNS.9 = cts.local
+
+
+
+Sign the CSR with the CA cert key
+=================================
+openssl x509 -req -in pingdev.csr -CA pingdev-CA.crt -CAkey pingdev-CA.key -CAcreateserial -out pingdev.crt -days 3650 -sha256 -extfile pingdev.ext
+
+Certificate request self-signature ok
+subject=C=SG, ST=Singapore, L=Singapore, O=Nebulas Tree Pte. Ltd., CN=pingdev
+Enter pass phrase for pingdev-CA.key: password
+
+
+Done
+====
+You now have pingdev.crt and pingdev.key for your services to enable SSL e.g. HTTPS, LDAPS, etc.

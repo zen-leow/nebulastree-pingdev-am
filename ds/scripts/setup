@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# Default setup script
+# Setup the directory server for the identity store, idm repo and config backends.
+
+# This uses PingDS setup profiles. If the schema for a profile has not been
+# changed it may use an older version. For example, PingAM 7.5 still uses the 6.5 schema for configuration
+set -e
+
+DEFAULT_OPENDJ_JAVA_ARGS="
+-XX:+UseG1GC
+-XX:+ExitOnOutOfMemoryError
+-Djava.security.egd=file:/dev/urandom
+-Xlog:gc:${DS_JAVA_GC_LOGFILE:-/opt/opendj/data/gc.log}:time,uptime:filecount=5,filesize=50M
+-XX:MaxGCPauseMillis=${DS_JAVA_GC_PAUSE_TARGET:-200}
+-XX:MaxRAMPercentage=${DS_JAVA_MAX_RAM_PERCENTAGE:-75}
+-XX:MaxTenuringThreshold=${DS_JAVA_MAX_TENURING_THRESHOLD:-1}
+${DS_JAVA_ADDITIONAL_ARGS:-}
+"
+export OPENDJ_JAVA_ARGS=${OPENDJ_JAVA_ARGS:-${DEFAULT_OPENDJ_JAVA_ARGS}}
+
+CONFIG="am-config"
+AM_IDENTITY_STORE="am-identity-store"
+AM_CTS="am-cts"
+
+setup-profile --profile ${CONFIG} \
+                  --set am-config/amConfigAdminPassword:password \
+ && setup-profile --profile ${AM_IDENTITY_STORE} \
+                  --set am-identity-store/amIdentityStoreAdminPassword:password \
+ && setup-profile --profile ${AM_CTS} \
+              --set am-cts/tokenExpirationPolicy:am-sessions-only \
+              --set am-cts/amCtsAdminPassword:password
+
+# The default in 7.x is to use PBKDF2 password hashing - which is many order of magnitude slower than
+# SHA-512. We recommend leaving PBKDF2 as the default as it more secure.
+# If you wish to revert to the less secure SHA-512, Uncomment these lines:
+#dsconfig --offline --no-prompt --batch <<EOF
+##    set-password-storage-scheme-prop --scheme-name "Salted SHA-512" --set enabled:true
+##    set-password-policy-prop --policy-name "Default Password Policy" --set default-password-storage-scheme:"Salted SHA-512"
+#EOF
+
+# Example of creating additional indexes at setup time.
+# Insert the dsconfig sub command into the batch above, as per your needs:
+# dsconfig --offline --no-prompt --batch <<EOF
+# create-backend-index \
+#           --backend-name amIdentityStore \
+#           --set index-type:equality \
+#           --index-name fr-attr-i1
+# create-backend-index \
+#           --backend-name amIdentityStore \
+#           --set index-type:equality \
+#           --index-name fr-attr-i2
+# create-backend-index \
+#         --backend-name amIdentityStore \
+#         --index-name fr-attr-date1 \
+#         --set index-type:equality
+# EOF
+
+echo "Done."
