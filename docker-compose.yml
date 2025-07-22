@@ -35,6 +35,7 @@ services:
      - AM_CFG_STORE_DIR_MGR=uid=am-config,ou=admins,ou=am-config
      - AM_USR_STORE_ROOT_SUFFIX=ou=identities
      - AM_USR_STORE_DIR_MGR=uid=am-identity-bind-account,ou=admins,ou=identities
+     - AM_ENCRYPTION_KEY=Thi5IsC00L
      - TRUSTSTORE_PATH=/var/run/secrets/am/truststore
      - TRUSTSTORE_PIN_PATH=/var/run/secrets/am/truststore.pin
    extra_hosts:

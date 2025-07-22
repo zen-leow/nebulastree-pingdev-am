@@ -54,9 +54,13 @@ if [ -d "$AM_HOME" ]; then
     echo "Directory '$AM_HOME' is empty. Performing installation process."
     # Add your commands here to be executed when the directory is empty
     $FORGEROCK_HOME/amster/amster -Djavax.net.ssl.trustStore=$TRUSTSTORE_PATH -Djavax.net.ssl.trustStoreType=jks -Djavax.net.ssl.trustStorePassword=$TRUSTSTORE_PASSWORD install-openam.generated.amster
-	echo "Amster script done"
+	echo "Amster script done."
+	echo "Open a browser and load $AM_PROTOCOL://$FQDN:$AM_PORT/am to login using these credentials - "
+	echo "Username: amadmin"
+	echo "Password: $AM_ADMIN_PWD"
   else
-    echo "Directory '$AM_HOME' is not empty. Means installation was done prior. Open a browser and load $AM_PROTOCOL://$FQDN:$AM_PORT/am to login using these credentials - "
+    echo "Directory '$AM_HOME' is not empty."
+	echo "Means installation was done prior. Open a browser and load $AM_PROTOCOL://$FQDN:$AM_PORT/am to login using these credentials - "
 	echo "Username: amadmin"
 	echo "Password: $AM_ADMIN_PWD"
   fi
