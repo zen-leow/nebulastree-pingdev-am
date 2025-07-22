@@ -18,12 +18,27 @@ services:
     context: am
     args: 
       AM_FILE_NAME: ${AM_FILE_NAME}
+      AMSTER_FILE_NAME: ${AMSTER_FILE_NAME}
+      FQDN: ${FQDN}
    image: local/pingdev-am:8.0.1
    container_name: am.pingdev.local
    environment:
-     - AM_STORES_SERVERS=ds.pingdev.local:1636
+     - FQDN=${FQDN}
+     - AM_PROTOCOL=https
+     - AM_PORT=8443
+     - AM_ADMIN_PWD=password
+     - AM_STORES_HOST=ds.pingdev.local
+     - AM_STORES_PORT=1636
+     - AM_STORES_PWD=password
+     - AM_CFG_STORE_ADMIN_PORT=4444
+     - AM_CFG_STORE_ROOT_SUFFIX=ou=am-config
+     - AM_CFG_STORE_DIR_MGR=uid=am-config,ou=admins,ou=am-config
+     - AM_USR_STORE_ROOT_SUFFIX=ou=identities
+     - AM_USR_STORE_DIR_MGR=uid=am-identity-bind-account,ou=admins,ou=identities
      - TRUSTSTORE_PATH=/var/run/secrets/am/truststore
-     - TRUSTSTORE_PASSWORD=bcGoNwg74en4nOgapWueGJq6s958botDhdmlLkLFsB2iMBeJBD1m+5tKzF+uXJ2dTDg=
+     - TRUSTSTORE_PIN_PATH=/var/run/secrets/am/truststore.pin
+   extra_hosts:
+      - "${FQDN}:127.0.0.1"
    ports:
      - 8081:8080
      - 8443:8443

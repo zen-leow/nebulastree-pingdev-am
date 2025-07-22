@@ -11,6 +11,8 @@ RUN apt-get update -y && \
 ENV FORGEROCK_HOME=/home/forgerock
 
 ARG AM_FILE_NAME
+ARG AMSTER_FILE_NAME
+ARG FQDN
 
 # The openam context directory
 ENV AM_HOME=$FORGEROCK_HOME/openam
@@ -32,7 +34,6 @@ ENV AM_CONTAINER_JVM_ARGS="-XX:MaxRAMPercentage=75 \
 
 RUN groupadd -g 11111 forgerock && \
     useradd -c "ForgeRock user" -m -d $FORGEROCK_HOME -u 11111 -g 11111 -G root forgerock
-	
 
 RUN chown -R forgerock:root "$CATALINA_HOME"
 RUN chown -R forgerock:root "/usr/local/tomcat"
@@ -48,6 +49,10 @@ RUN rm -rf "$CATALINA_HOME"/webapps/*
 ADD /build/"$AM_FILE_NAME" "$CATALINA_HOME"/webapps/
 RUN unzip -q "$CATALINA_HOME"/webapps/"$AM_FILE_NAME" -d "$CATALINA_HOME"/webapps/am && \
     rm "$CATALINA_HOME"/webapps/"$AM_FILE_NAME"
+	
+ADD /build/"$AMSTER_FILE_NAME" "$FORGEROCK_HOME"
+RUN unzip -q "$FORGEROCK_HOME"/"$AMSTER_FILE_NAME" -d "$FORGEROCK_HOME" && \
+	rm "$FORGEROCK_HOME"/"$AMSTER_FILE_NAME"
 
 # IAM-434: Preserves the native XUI code in a new location specifically for OAuth 2-related UI needs.
 RUN cp -R /usr/local/tomcat/webapps/am/XUI /usr/local/tomcat/webapps/am/OAuth2_XUI
@@ -58,6 +63,6 @@ COPY --chown=forgerock:root logback.xml /usr/local/tomcat/webapps/am/WEB-INF/cla
 
 COPY --chown=forgerock:root *.sh /home/forgerock/
 
-WORKDIR /usr/local/tomcat
+WORKDIR $FORGEROCK_HOME
 
 CMD "$FORGEROCK_HOME/docker-entrypoint.sh"
