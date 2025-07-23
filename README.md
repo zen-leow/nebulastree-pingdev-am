@@ -3,7 +3,7 @@
 The purpose of this project is to provide a quick deployment method to setup a PingAM (formerly ForgeRock Access Management) environment for anyone developing applications that utilises PingAM for authentication. For example, building an Android app and you want to test out the SDK provided by PingIdentity. Or you wish to experiment with the different REST APIs available from PingAM. I'm using AM 8.0.1 and DS 8.0.0 which are the latest at the time of this writing. Hope this will be helpful for you.
 
 ## How this differs from ForgeOps
-Note that this project is not to be confused with _forgeops_ although parts of the project uses it as reference. ForgeOps provides a means to create the full Identity Platform (AM, IDM, DS, Platform UIs) using Kubernetes. Even for local deployment, you are going to need Minikube. For the uninitiated, this can be rather daunting. 
+This project is not to be confused with _forgeops_ although parts of the project uses it as reference. ForgeOps provides a means to create the full Identity Platform (AM, IDM, DS, Platform UIs) using Kubernetes. Even for local deployment, you are going to need Minikube... For the uninitiated, this can be rather daunting. 
 
 Over here we are only focusing on creating 1 x AM container and using 1 x DS container to be the config store, user store and CTS. I couldn't use the docker images provided by PingIdentity as they are very tightly coupled to ForgeOps way of doing things so I create these from scratch while referencing some of the scripts forgeops uses and stripped out everything I don't need. This is by no means a production ready setup but it's good enough for a local development environment.
 
@@ -13,9 +13,11 @@ The AM in ForgeOps uses File Based Configurations (FBC). This project uses the D
 Before you run docker compose on this, you need to have some pre-requisites sorted out. This should work on Windows or Linux machines just fine.
 1. Docker Desktop - That should cover `docker compose` too.
 2. Git - This is actually optional but I prefer using Git Bash that comes with it over the usual Windows Command Prompt.
-3. A Forgerock Backstage account (it's free) https://backstage.forgerock.com/
+3. A Forgerock Backstage account (it's free!) https://backstage.forgerock.com/
 4. Download PingAM's WAR file and Amster zip file. https://backstage.forgerock.com/downloads/browse/am/featured
    - You need to login with your registered account to initiate the download.
+
+Note: You don't have to download PingDS from backstage as it is not going to work OOTB. I've done the necessary changes and created a custom PingDS base image which is then pushed to ghcr.io. The Docker file in this repo will pull the image from there and setup config store, user store and CTS automatically.
   
 ## The Short Story
 1. Either clone or download all the files here as zip. Maintain the folder structure as is without change.
@@ -34,5 +36,5 @@ Before you run docker compose on this, you need to have some pre-requisites sort
 14. Have fun.
 
 ## The Long Story
-This is where I'll talk about how the 2 containers work together, what the settings in mean and how to change things, etc...
-But not now. It's a work in progress.
+This is where I'll talk about how the 2 containers work together, what the settings in `docker-compose.yml` and `.env` mean and how to change things, etc...
+To be updated later...
