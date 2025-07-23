@@ -29,6 +29,9 @@ Before you run docker compose on this, you need to have some pre-requisites sort
 9. First time startup will take a bit longer as Amster needs to install the base configurations.
 10. If there's no startup error AND you see `Open a browser and load https://auth.pingdev.local:8443/am`, then it's ready.
 11. Add this to your hosts file `127.0.0.1 auth.pingdev.local`
+12. Load `https://auth.pingdev.local:8443/am` on your browser, accept the Security risk thrown by your browser (since we are using self signed certs here).
+13. Login with Username: amadmin / Password: password
+14. Have fun.
 
 ## The Long Story
 This is where I'll talk about how the 2 containers work together, what the settings in mean and how to change things, etc...
