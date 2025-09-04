@@ -1,0 +1,9 @@
+#Assuming you have a server certificate, a private key and CA certs
+
+If your SSL cert is signed by a trusted CA, there are probably intermediate certs and root certs.
+
+Create Combined_CertChain.cer by adding the ROOT cert below the Intermediate Certs.
+
+this command allows you to package the cert, key, CA chain into a single file for deployment to certain services like Azure Application Gateway
+
+openssl pkcs12 -export -out myPFXFile.pfx -inkey my-private.key -in my-SSL.crt -certfile Combined_CertChain.cer

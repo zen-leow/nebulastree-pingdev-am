@@ -5085,6 +5085,145 @@
 								"description": "Revoke the refresh token created in the previous call. Revoking a refresh token also revokes any other associated tokens that were issued with the same authorization grant. "
 							},
 							"response": []
+						},
+						{
+							"name": "Step 7d: Revoke the Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"//TESTS",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.expect(pm.response.code).to.eql(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "{{refresh_token}}",
+											"description": "The refresh token to revoke.",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{confidential_client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client_secret}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{URL_base}}/oauth2/realms/{{sub_realm}}/token/revoke",
+									"host": [
+										"{{URL_base}}"
+									],
+									"path": [
+										"oauth2",
+										"realms",
+										"{{sub_realm}}",
+										"token",
+										"revoke"
+									]
+								},
+								"description": "Revoke the refresh token created in the previous call. Revoking a refresh token also revokes any other associated tokens that were issued with the same authorization grant. "
+							},
+							"response": []
+						},
+						{
+							"name": "endSession",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"//TESTS",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.expect(pm.response.code).to.eql(200);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": []
+								},
+								"url": {
+									"raw": "{{URL_base}}/oauth2/realms/{{sub_realm}}/connect/endSession?id_token_hint={{id_token}}",
+									"host": [
+										"{{URL_base}}"
+									],
+									"path": [
+										"oauth2",
+										"realms",
+										"{{sub_realm}}",
+										"connect",
+										"endSession"
+									],
+									"query": [
+										{
+											"key": "id_token_hint",
+											"value": "{{id_token}}"
+										}
+									]
+								},
+								"description": "Revoke the refresh token created in the previous call. Revoking a refresh token also revokes any other associated tokens that were issued with the same authorization grant. "
+							},
+							"response": []
+						},
+						{
+							"name": "Get UserInfo using Access Token",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL_base}}/oauth2/realms/{{sub_realm}}/userinfo",
+									"host": [
+										"{{URL_base}}"
+									],
+									"path": [
+										"oauth2",
+										"realms",
+										"{{sub_realm}}",
+										"userinfo"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"description": "The Authorization Code Grant, when combined with the PKCE standard (RFC 7636), is used when a client, usually a mobile or a JavaScript application, requires access to protected resources.\n\nThe flow is similar to the regular Authorization Code Grant type, but the client must generate a code that will be part of the communication between the client and the authorization server. This code mitigates against interception attacks performed by malicious users.\n\nSince communication between the client and the authorization server is not secure, clients are usually public so their secrets do not get compromised. Also, browser-based clients making OAuth 2.0 requests to different domains must implement Cross-Origin Resource Sharing (CORS) calls to access OAuth 2.0 resources in different domains.",
